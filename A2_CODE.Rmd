@@ -1,0 +1,369 @@
+---
+title: "Age, Marital Status, Education Among many Factors that Predict Income from the Canadian General Social Survey (2017)"
+author: "Linhan Zhang & Jeffrey Li"
+date: "11/10/2020"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+# ABSTRACT
+
+   The purpose of this analysis was to build a model from the Canadian General Social Survey of 2017 to predict income and analyze the various factors which could predict income among Canadian individuals. The methods employed to prepare the data for modeling was a cleaning and removal of NA measurements from the data set; subsequently, various predictors were plotted against income to visualize trends and correlations. Then, using three quarters of the data as training, an initial multinomial logistic model was built using significant predictors which was then reduced and interactions terms were added. This model has an area under the curve (AUC-ROC) of 0.69 and a validation error of 3.12 using the testing data. OVerall, this model and analysis supports the theory that many factors - such as age, marital status, education, etc - affect income and some interact, increasing the complexity of predicting income. Nonetheless, income distribution analysis and discussion should go beyond simple identity politics, though it is without a doubt that it contributes to the inequality.
+   Code and data supporting this analysis is available at https://github.com/Linlinzhang28/STA304Assignment2.git
+   
+# INTRODUCTION
+  In 2017, the median income of Canada was 59,800 while the GDP per capita was around 54,000 (StatsCan, 2019). In 2015, the top 1% of Canadian earners made a over 225,000 a year (Younglai & Yukselir, 2019). While many focus on the apparent gender and racial discrepancies in income, likely there are many other factors at play.In fact, income distribution, the analysis of how a country's GDP is distributed among its population, has long been of interest to policy makers and economists. Traditionally, economists mostly focused on factor distribution which concerns itself mainly on the distribution of income between the factors of production (labour, land, and capital). However, modern economists and policy makers have shifted their focus to analyze more the distribution of income between individuals and groups of people; indeed, as income inequality has become a heated topic of discussion revolving around concepts of race, gender, and identity politics in general, policy makers and economists have delved into the analysis determining truly what factors influence income. This analysis aims to examine various factors and their relation to income in the Canadian General Social Survey by building a model to predict income. Specifically, due to the stratified levels and categorical nature of the measured income in the data, logistic regression will be employed for modeling. In this regard, the objective is to create a model with high predictability of income; subsequently, the various predictors in the model can be considered within the Canadian context and specific spheres of inequality, if present, can be identified for further discussion. Additionally, it will also be interesting for Canadian's to observe whether or not education, for example, is important for higher income. Student debt has become a crisis in North America and many now are looking for alternatives to sustain themselves and build a career. Certain aspects of this model will also be able to guide those people in making such decisions.
+   This study focuses on the interplay between factors measured in the GSS such as age, education, children, marital status, hours worked, and even factors like self-rated health and mental health. The methodology section will detail how our model aimed to initially include as many factors as possible. However, due to the limitations of the data and survey - detailed in the data section - only age, total children, feelings life, place birth Canada, marital status, visible minority, citizenship status, education, average hours worked, self rated health, self rated mental health, language home, language knowledge, and occupation were included.Subsequent refining of the model, addition of interaction terms, and values of our model will be detailed in the model section of our results. Finally, this report will discuss the implications and meanings of the proposed model; its strengths and limitations; and future possible research directions.
+  
+# METHODOLOGY
+## GENERAL SOCIAL SURVEY (GSS) OVERVIEW
+  The GSS data was retrieved from the CHASS website using the UofT student authentication login and subsequent initial data cleaning was performed using the provided code by professors Rohan and Caetano (Caetano & Alexander, 2020). The data prior to any modifications contained 20602 observations and 81 variables. The survey was originally established in 1985 and its purpose was to track social trends and changes as well as to gather data which could inform social policy (StatsCan, 2017). To this end, the survey achieves its purpose and poses questions which provide an in-depth look at Canadian society over time. The data is collected via two main means: a telephone interview and Internet survey. For the telephone interview, interviewees are selected from address registers and telephone numbers available to Statistics Canada. The tandem usage of Internet and telephone surveys for collecting data allows for greater coverage across the population as many younger individuals and families no longer have phone lines (StatsCan, 2017). Additionally, it is expected that response rates be higher as the traditional automated telephone calls often intimidate interviewees. Futhermore, this method is also cheaper to conduct as it requires less people than traditional surveys which required an interviewer per interviewee. While the survey's target frame was all Canadians and aims to make inferences on the entire Canadian population, the sample frame - which is the set of people/groups from which data can be drawn - of this data set was limited to those identifiable via address and telephone number and had access to the Internet (Caetano, 2020).
+  A major quality of this survey is its expansiveness; indeed, it collected data from thousands of Canadians and measured 80 variables. Many quantitative and qualitative measurements were recorded though the survey contains mostly categorical data.Futhermore, the overall structure of of the survey and its categorical measurements makes the questionnaire relatively simple and easier to complete. It does not require very advanced technical skills via Internet and telephone interviews are simple as well as respondents can reply using the number pad (StatsCan, 2017). 
+  In the Canadian setting, such a survey is nevertheless still limited. Indeed, while coverage and response rates may have increased, two main issues still persist. First, the survey collects and organizes mostly categorical data making certain forms of modeling such as linear regressions very difficult to execute and extract meaningful inferences. Furthermore, at a categorical level, certain measurements lose precision - for example, income is split into 6 brackets. This blurs certain aspects of variation between individuals. Additionally, there may be answers or categories that some respondents feel to be more accurate of their situation; in this case, it is difficult for respondents to give a clear answer and will likely result in a non-answer. Secondly, the success of this survey largely depends on native language fluency among respondents. In Canada, though the official languages are English and French, many immigrant respondents may not yet be fully fluent; as a result, answers may not be accurate and this may also cause an increased 'NA' answer in many sections of the interview. Further data issues will be explored in the subsequent DATA section.
+  
+## DATA
+### CLEANING
+
+  The data for this analysis is the result of the Canadian General Social Survey from 2017. It contained 20 602 observations of 81 variables originally. For the purpose of predicting income, we selected variables that are collected by the Government of Canada for tax and income purposes as well as information that we hypothesized to be important predictors of income. The Canada Revenue Agency (CRA) already collects data on employment information, demographics, and elements of personal life such as marital status and number of dependents (children); as a result, we made sure to include those relevant factors in our data set. Additionally, we also believe that education, mental and physical health, as well as hours worked should contribute significantly to the income an individual makes therefore those were also kept throughout the cleaning of out data. Subsequently, all rows with 'NA' were removed to ensure proper modeling. Indeed, while a person may have recorded interesting information in a survey without each category available we are unable to make meaningful inferences on the relationships of each factor to income and to each other.Overall, the 16 variables kept for further examination include age, total_children, feelings_life, sex, place_birth_Canada, marital_status, vis_minority, citizenship_status, education, average_hours_worked, self_rated_health, self_rated_mental_health, language_home, language_knowledge, occupation, and income. In the cleaned data set without 'NA' responses, there were a remaining 12050 observations.
+  
+### VISUALIZATION
+
+  An initial visualization of the data in the figures 1 through 15 in Appendix 1 illustrate each variable of interest and income in bar plots. 
+  
+### LIMITATIONS of the Data set
+
+  Though this data is comprehensive in the information on the multitude variables it collected, a consequence is that there are 'NA' values across the data set. This is likely due to individuals not feeling comfortable sharing all personal information and/or being unsure about their answer. While their age is easy to identify, it is difficult for individuals to self-rate their mental and physical health. For clinical studies and assessments there are usually established scales such as body mass index (BMI) for physical condition and scales like the geriatric depression scale (GDS) for mental health in the elderly. The GSS does not employ comparable baseline scales and instead asks individuals to self-rate using descriptions like "good", "fair", "very good", etc. This reduces the comparability between respondents which can make effective modeling difficult; however, since the categories are broad, we will assume that most people have successfully identified themselves inside the broad categories and relative to others.
+  As a result, after cleaning out data, almost have of the observations were eliminated for having contained an 'NA' in a factor of interest. This can be especially limiting in a situation where an even more complex model with more predictors will be applied. Nonetheless, such is the nature of surveys and categorical responses.
+  A final limitation of the data is how it splits expansive categories and measurements into a few levels. In the case of our analysis, the income category was greatly limited as it only included six brackets. Income is highly variable among individuals and a model which can only predict a range, like 25,000 to 49,999, is limited.
+```{r include=FALSE}
+#Load libraries and data
+library(tidyverse)
+library(caTools)
+library(pROC)
+library(pander)
+data = read.csv("GSS.csv")
+#Select variables we might use
+data1 = select(data, age, total_children, feelings_life, sex,
+               place_birth_canada,
+                marital_status, vis_minority, citizenship_status,
+               education, average_hours_worked, self_rated_health,
+               self_rated_mental_health,
+               language_home, language_knowledge, occupation,
+               income_respondent)
+sum(is.na(data1$age))
+sum(is.na(data1$total_children))
+sum(is.na(data1$feelings_life))
+sum(is.na(data1$sex))
+sum(is.na(data1$place_birth_canada))
+sum(is.na(data1$marital_status))
+sum(is.na(data1$vis_minority))
+sum(is.na(data1$citizenship_status))
+sum(is.na(data1$vis_minority))
+sum(is.na(data1$citizenship_status))
+sum(is.na(data1$education))
+sum(is.na(data1$average_hours_worked))
+sum(is.na(data1$self_rated_health))
+sum(is.na(data1$self_rated_mental_health))
+sum(is.na(data1$language_home))
+sum(is.na(data1$language_knowledge))
+sum(is.na(data1$occupation))
+#Remove NAs
+data_new = na.omit(data1)
+```
+
+```{r, include=FALSE}
+#Change Response
+data_new$income_respondent[data_new$income_respondent == "Less than $25,000"] = 1
+data_new$income_respondent[data_new$income_respondent == "$25,000 to $49,999"] = 2
+data_new$income_respondent[data_new$income_respondent == "$50,000 to $74,999" ] = 3
+data_new$income_respondent[data_new$income_respondent == "$75,000 to $99,999" ] = 4
+data_new$income_respondent[data_new$income_respondent == "$100,000 to $ 124,999"] = 5
+data_new$income_respondent[data_new$income_respondent == "$125,000 and more" ] = 6
+```
+```{r include=FALSE}
+##View data
+#Response variable
+ggplot(data = data_new, aes(x = income_respondent), )+geom_bar()
+#Response variable with the predictors
+ggplot(data = data_new, aes(x = age, y = income_respondent))+ geom_boxplot()
+ggplot(data = data_new, aes(x = total_children, fill = income_respondent))+
+  geom_bar()
+ggplot(data = data_new, aes(x = feelings_life, fill = income_respondent))+
+  geom_bar()
+ggplot(data = data_new, aes(x = income_respondent, fill = place_birth_canada))+
+  geom_bar()
+ggplot(data = data_new, aes(x = income_respondent, fill =marital_status))+
+  geom_bar()
+ggplot(data = data_new, aes(x = income_respondent, fill = vis_minority))+
+  geom_bar()
+ggplot(data = data_new, aes(x = income_respondent, fill = citizenship_status))+
+  geom_bar()
+ggplot(data = data_new, aes(x = income_respondent, fill = education))+
+  geom_bar()
+ggplot(data = data_new, aes(x = income_respondent, fill = average_hours_worked))+
+  geom_bar()
+ggplot(data = data_new, aes(x = income_respondent, fill = self_rated_mental_health))+
+  geom_bar()
+ggplot(data = data_new, aes(x = income_respondent, fill = self_rated_health))+
+  geom_bar()
+ggplot(data = data_new, aes(x = income_respondent, fill = language_home))+
+  geom_bar()
+ggplot(data = data_new, aes(x = income_respondent, fill = language_knowledge))+
+  geom_bar()
+ggplot(data = data_new, aes(x = income_respondent, fill = occupation))+
+  geom_bar()
+
+```
+```{r include=FALSE}
+##Validation
+set.seed(100)
+sample = sample.split(data_new,SplitRatio = 0.75)
+train =subset(data_new,sample ==TRUE)
+test =subset(data_new, sample==FALSE)
+##Build the full model
+#logit link
+library(MASS)
+model_full <- glm(as.factor(income_respondent)~age+total_children+feelings_life+
+                     place_birth_canada+marital_status+vis_minority+
+                     citizenship_status+education+average_hours_worked+
+                     self_rated_health+self_rated_mental_health+
+                     language_home+language_knowledge+occupation, 
+                   data = train, family = binomial(link = logit))
+stepAIC(model_full,  direction = 'backward')
+
+```
+```{r include=FALSE}
+##Reduced model
+model_logit_red <-  glm(formula = as.factor(income_respondent) ~ age + 
+                          total_children + place_birth_canada + marital_status
+                        + vis_minority + education + average_hours_worked + 
+                          self_rated_health + occupation, 
+                        family = binomial(link = logit), data = train)
+summary(model_logit_red)
+AIC(model_logit_red)
+
+```
+```{r include=FALSE}
+##Interaction
+model_logit_int <-  glm(formula = as.factor(income_respondent) ~ 
+                          age + total_children + marital_status +
+                          place_birth_canada+ vis_minority+ 
+                          age*( total_children + + marital_status)+ 
+                          education + self_rated_health+ 
+                          occupation+average_hours_worked, 
+                        family = binomial(link = logit), data = train)
+AIC(model_logit_int)
+```
+```{r include=FALSE}
+##Which model is better
+an = anova(model_logit_red, model_logit_int, test = 'Chisq')
+
+```
+# MODEL 
+  The model was built, run, and diagnosed in RStudio.
+  Due to the categorical nature of the data, meaning that the response variable is qualitative rather than a quantitative measurement (like gender vs height), the model selected was the multinomial logistic regression model. This logistic regression model allows predictions of categorical levels rather than a quantitative measurement for which other types of models like linear regression could have sufficed. Without the logistic regression, any model or prediction would likely be meaningless and useless for inferences.
+  
+  The multinomial logistic model essentially predicts categorical responses using log odds. Simply, odds differ from probability in that instead of measuring the chances of something happening versus the chances of everything happening, odds measure the chances of something occurring versus the chances of it not occurring. This systematic approach to evaluating different odds among various categories is what allows the logistic regression model to predict categorical responses (Wiley & Wiley, 2019).
+  
+  Moreover, the features that enter this model are almost entirely categorical. The only numerical features are age, total_children, average_hours_worked, and feelings_life. These numerical features differ from the categorical features (like sex, place_birth_canada, marital_status, vis_minority, citizenship_status, education, self_rated_health, self_rated_mental_health, language_home, language_knowledge, and occupation) because numerical summaries can be created from the information such as means, standard deviations, medians, etc. There are numerous reasons for preference of numerical values over categorical values; in this case, for example, age is relatively simple to collect and most people remember their age and total children does not vary much in a large sample as most people either have none, 1, 2, or 3 children. On the other hand, for measurements like income, most people have a general idea, but are either hesitant to divulge the details or do not know them, so a range allows quick and efficient data collection. In other cases, features like sex can only be categorical as answers will range between male or female.
+  
+  Alternative models are limited in this case because the response variable is a categorical. Linear and other models require a numerical response variable. As discussed in the limitations of the GSS survey, a numerical assessment of an individual's income would have been preferred in order to make more specific interpretable models; however, this would have made the survey more difficult to fill out. Nevertheless, for future surveys, it may be interesting to retrieve such data from the CRA with permission from tax filers. With the proper response variable, though, multivariate linear regressions allow more precise predictions. For example, with numerical data on income the prediction would be a precise value and not a range like in this case.
+  
+  The creation of the model begins with selecting the variables of interest from the data set. From there, a basic multinomial logistic regression model was created with all of the features of interest (Table 1. Appendix 2).
+  Subsequently, backwards selection using Aikake's Information Criteria (AIC) was applied to simplify the model and remove and predictors which did not contribute anything significant (Table 2. Appendix 3). Backwards selection is the progressive simplification of a complex model by removing any features that are unnecessary and provide no new information that isn't already provided by other features in the model. AIC is effective in this case because it is a statistics measurement which compares the quality between models. A small AIC value indicates a better fit (Wiley & Wiley, 2019).
+  Subsequently, model interactions were considered. For this model, we determined through the initial data plots that marital status and total_children were stratified for different ages. This signifies that while total children and marital status play a role in predicting income category, there may be an stratification effect of age on those variables. For example, while income may change with marital status, marital status may changes with age therefore we must account for the effect of age on marital status when considering marital status and income. After AIC, we added these interaction terms - the new interaction model detailed in Table 3. Appendix 4 - and verified the new model's significance using a Chi-square test using an ANOVA detailed in Table 4. Appendix 5.
+  ANOVA stands more analysis of variance and is constructed to evaluate the differences between the two models. Specifically, it examines whether the new model's interaction terms add any significant information to our model. The significant difference is indicated by the p-value < 2.2e-16. The p-value measures the probability of finding results as extreme as in the ANOVA. In this case, a low probability of more extreme values means that our interaction model is significantly different from the simple reduced model.
+  
+  Finally, we diagnosed the interaction model using the quarter of the data we separated for testing purposes and we observe an external validation error of 3.12 which indicates that this model has an acceptable fit because the error is relatively small in this context (Appendix 6 code).
+  
+# RESULTS
+  The final model is as follows:
+$$
+\begin{split}
+\widehat{log(\frac{\pi_j}{\pi_6})} = -0.786+0.03*age+0.517*total\_children\\
+-0.378*place\_birth\_canada_{Born\_outside\_Canada}+0.221*place\_birth_{Don't\_know}\\
+-0.35*marital\_status_{Living\_in\_common-law}-0.05*marital\_status_{Married}\\
+-0.202*marital\_status_{Seperate}-2.218*marital\_status_{Single,never\_married}\\
+-1.42*marital\_status_{Widowed}+1.046*visible\_minority_{Not}\\
++0.968*visible\_minority_{Visible\_minority}-0.354*education_{College,CEGEP...}\\
+-0.594*education_{High\_school}-1.323*education_{less\_than\_high\_school}\\
+-0.51*education_{Trade\_certificate\_or\_diploma}+0.316*education_{University\_or\_below\_bachalor}\\
++0.4*education_{University\_or\_above\_bachalor}-0.27*average\_hour\_worked_{1-29.9hrs}\\
++1.367+average\_hour\_worked_{30-40hrs}+1.421*average\_hour\_worked_{40.1-50hrs}\\
++average\_hour\_worked_{50.1\_and\_more}+0.245*average\_hour\_worked_{Don't\_know}\\
++0.045*self\_rated\_health_{Excellent}-0.031*self\_rated\_health_{Fair}\\
+-0.098*self\_rated\_health_{Good}-0.510*self\_rated\_health_{Poor}\\
++0.08*self\_rated\_health_{Very\_good}+0.013*occupation_{Health}\\
+-0.51*occupation_{Managemnet}+0.05*occupation_{Natural\_and\_applied\_sciences}\\
+-0.522*occupation_{Natural\_resources, agriculture}-1.358*occupation_{art\_culture,recreation\_and\_sport}\\
+-0.385*occupation_{education\_law\_and\_social}-0.01*occupation_{manufacturing,utility}\\
+-0.901*occupation_{Sales,service}-0.057*occupation_{Trades...}\\
+-1.447*occupation_{Uncodable}+0.0121*age:marital\_status_{Living\_in\_common-law}\\
+-0.0006*age:marital\_status_{Married}-0.002*age:marital\_status_{Seperate}\\
+0.042_age:marital\_status_{Single,never\_married}+0.023*age:marital\_status_{Widowed}\\
+-0.009*age:total\_children
+\end{split}
+$$
+  The interpretation of this multinomial logistic regression is as follows:
+  "j" indicates the category of income respondents from levels 1 to 6; "pi" signifies probability; the coefficients before each variable signify their effect on the log odds.
+  The log odds essentially measures the odds which is the ratio between the probability of different levels of response. What is important is that it predicts the most probable response based on the information of the different factors and their levels.
+  The area under the curve (AUC) and the curve which is called the receiving operating characteristics (ROC) helps us assess the performance of the model. We use this specific measurement because it is created for instances where predictors are ordinal which is a type of categorical data (Agresti, 2014, Wiley & Wiley, 2019). The AUC-ROC of our model is 0.6937 (Appendix 7 code).
+  
+  The Cross-validation is a technique used to test the model by using different samples of data (Stefan, 2020). The training set contains 75% of the observations, and the testing set contains the leftover 25% of the observations. The cross-validation method was used to check if the model predicts well for training data set. This allows us to check the accuracy of the model's predictions. The calibration plot of Figure 16 Appendix 8 shows that the bias-corrected line follows the ideal line which means that the model performs well to predict the responses internally.
+  
+  The overall coefficients illustrate which factors most heavily affect income (Table 3. Appendix 4).
+```{r include=FALSE}
+##Result shows that the interaction model is more significant
+##ROC
+### ROC curve ###
+library(pROC)
+pred.prob <- predict(model_logit_int, type = "response")
+## The True Positive Rate ##
+p = fitted(model_logit_int)
+roc_logit = multiclass.roc(train$income_respondent~p, levels = c(1,2,3,4,5,6))
+roc_logit
+```
+```{r include=FALSE}
+## Cross validation ##
+library(rms)
+logit.mod <- lrm(formula = as.numeric(income_respondent)~ age + 
+                          total_children + place_birth_canada + marital_status
+                        + vis_minority + education + average_hours_worked + 
+                          self_rated_health + occupation, 
+                 data = train, x = TRUE, y = TRUE, model = T)
+cross.calib <- calibrate(logit.mod, method="crossvalidation", B = 10)
+plot(cross.calib, las = 1, xlab = 'Predicted Probability')
+
+```
+```{r include=FALSE}
+## Validating on the test data ##
+pred.y = predict(model_logit_int, newdata = test)
+pred.y
+mean((as.numeric(test$income_respondent) - pred.y)^2)
+```
+# DISCUSSION
+  Based on the AUC-ROC, our model predicts income with an accuracy of 69.37% while this accuracy is not particularly impressive or high it does indicate better-than-random accuracy. This suggests that certain qualitative and quantitative factors do in fact affect income for individuals in Canada. 
+  In Table 3 of Appendix 4, the table shows each predictors' levels' coefficient. A predictor's coefficient indicates that when all other factors are kept constant and the predictor increases by 1, the log odds of income increases by its coefficient. For example, when all other factors are kept constant and age increases by 1, then the log odds of income increases by 0.0296118. The greater the coefficient the more heavily income is positively affected by increases in the respective factor. The lower and more negative the coefficient, the more heavily income is negatively affected by increases in the respective predictor. A coefficient near zero tells us that this factor though significant in this model, does not affect income as much as other factors. Based on this table then, it becomes clear that income distribution is complex and a small change in a single factor can change predicted income. When we consider the model as a whole, then income prediction becomes even more complex. Nonetheless, this model proves our hypothesis which was that many factors outside of gender, age, sex, and race can have a heavy impact on income. 
+  A limitation of our model is that there may be more interacting variables than we can account for due to the limitations of the data. For example, while number of children was a significant feature of our model, it is important to note that by no means does it aim to encourage or discourage having children. Likely, this significance is due to the possibility that more accomplished people can afford to have more children. Or, on a global scale, it has been observed that more affluent countries have lower fertility indicating that people who focus more on their work and careers make more money. This model could not account for such complexity, but future studies and model should observe these interactions in greater depth.
+  An additional limitation present in this analysis is that during our predictor variable selection we had to select by data visualization of histograms and plots of Appendix 1. Indeed, we could not for example use correlations to select the best predictors because of the categorical data. As a result, we may have missed certain significant factors or included factors which may not be crucial in the overall model. This certainly affects the reproducibility of our study; however, the conclusions of our model still hold. That is, many factors apart from general identity information affect an individual's income.
+  Specific bias existing in this survey and data is the element of reporting bias. That is, while a CRA assessment of income will be based on evidence and income and tax sheets, results from the survey are not checked. As a result, there can be bias in the reporting of certain factors. For example, in the case of income, while an individual may earn 49,000 dollars per year, during the survey they may overestimate and claim they make between 50,000 and 74,999. A suggestion to adjust for such occurrences is to increase the number of income brackets or remove the brackets entirely and report exact income.
+  A further limitation and important consideration for future studies is how the GSS and its data split income into 6 categorical levels: less than 25,000; 25,000 to 49,999; 50,000 to 74,999; 75,000 to 99,999; 100,000 to 124,999; and 125,000 and more. While this may seem like a good way to simplify the data for visualization, this actually slightly impedes the inferences that we can draw from the data. It does not impede very much predicting income levels and visualizing general wealth and income distribution in the population; however, due to the brackets being broad and created without specific cutoffs, it is difficult to conclude the specific conditions an individual is living in. Per Statistics Canada, the low income cutoff (LICO), also known as the poverty line in 2017, rests somewhere between 13,000 and 20,000 dollars depending on the region and size of family (StatsCan, 2020). Since the median income of Canada was around 59,800 dollars in 2017, we cannot tell if an individual earning between 25,000 and 49,999 is just slightly above the poverty line or whether they are actually somewhat comfortably just below the median income. This greatly disturbs inferences on the state of income inequality and how it may affect quality of life inside this data. Moreover, on the other end of the spectrum, earning over 70,000 dollars puts an individual within the top 10% of all Canadian earners in 2017; it does not seem appropriate that the top 10% needs half of the income categories (StatsCan, 2019). Though this presents a more balanced data across the ranges of income, it may have been more interesting to include a couple extra levels and specific cutoffs for the income categories in the future.
+  Future directions proposed for general social surveys include increasing the number of income brackets for income or removing them entirely and recording specific income values. It may be of interest to collaborate with the CRA for income data purposes. Furthermore, GSS may consider adding more categories in the visible minority factor as Canada has always struggled with quantifying the inequalities suffered by Indigenous peoples as well as other distinct minorities. Clarification of the income disparity among these groups may be an interesting area of study.
+  Future directions for our model and study are many, from enlarging the scope of our predictors to decreasing the scope. Both offer unique views on income distribution in society: on one hand, including more factors may allow the model to predict with higher accuracy, while on the other hand, analyzing less but more specific categories may enlighten the differences among smaller groups in Canada. While both are highly important, it is crucial to note that the purpose of this study was to highlight that there are likely more than just identity politics influencing income inequality.
+  Policy makers and economists should, based on our model, focus on more interactions between factors such as number of children, age and other confounding variables which blur the effects of certain predictors. Additionally, further study of education level and income is warranted as education is becoming pricier and prospective students aim to balance debt and possible future income. 
+  
+# CONCLUSION
+  In conclusion, to date economists, policy makers, and scientists have explored various social aspects which may explain the income distribution in Canada. To test our hypothesis that a multitude of factors apart from those in identity politics influence income inequality and distribution in Canada, we built a multinomial logistic regression model based on the GSS 2017. Our hypothesis was supported by our model which is based on not only age, minority status, and sex, but also factors ranging from education level to hours worked per week. Nonetheless, while this study proposes we examine other factors apart from sex, for example in the case of the gender wage gap, it is important to keep in mind that our model considers these varying factors together which means there is a high likelihood that factors interact and may have effects on income unseen in this study. Specifically, it should be acknowledged that certain minorities have decreased access to education which our model found to be a significant predictor of income. Further directions proposed to analyze the importance of education in career income as student debt increases and young adults weigh the costs and benefits of pursuing higher level education. Greater elucidation is required even though income distribution is part of a natural order of a national economy.
+  
+# BIBLIOGRAPHY
+Agresti, A. (2014). Categorical Data Analysis. Hoboken: Wiley.
+
+Caetano, S. J. (2020). STA304 Basic Concepts in Survey Sampling. [Handout]. Retrieved 
+from: https://q.utoronto.ca/courses/184060
+
+Infographic from the 2017 Canadian Income Survey data. (2019, February 26). Retrieved October 18, 2020, from https://www150.statcan.gc.ca/n1/pub/11-627-m/11-627-m2019013-eng.htm
+
+Low income cut-offs (LICOs) before and after tax by community size and family size. (n.d.). Retrieved October 19, 2020, from https://www150.statcan.gc.ca/t1/tbl1/en/tv.action?pid=1110024101
+
+Stefan, G. (2020). STA303/STA1002: Methods of Data Analysis II Lecture 6 [PowerPoint slides]. Retrieved from: https://q.utoronto.ca/courses/159686/modules
+
+Wiley, M., & Wiley, J. F. (2019). Advanced R statistical programming and data models: Analysis, machine learning, and visualization. New York: APRESS.
+
+Younglai, R., & Yukselir, M. (2019, November 01). Who are Canada's 1 per cent and highest paid workers? Retrieved October 20, 2020, from https://www.theglobeandmail.com/news/canada-1-per-cent-highest-paid-workers-compare/article36383159/
+
+# Appendix
+### Appendix 1
+```{r, include=FALSE}
+par(mfrow=c(1,2))
+```
+```{r, echo=FALSE}
+#Response variable
+ggplot(data = data_new, aes(x = income_respondent))+geom_bar()
+#Response variables with the predictors
+ggplot(data = data_new, aes(x = age, y = income_respondent))+ geom_boxplot()
+ggplot(data = data_new, aes(x = total_children, fill = income_respondent))+
+  geom_bar()
+ggplot(data = data_new, aes(x = feelings_life, fill = income_respondent))+
+  geom_bar()
+ggplot(data = data_new, aes(x = income_respondent, fill = place_birth_canada))+
+  geom_bar()
+ggplot(data = data_new, aes(x = income_respondent, fill =marital_status))+
+  geom_bar()
+ggplot(data = data_new, aes(x = income_respondent, fill = vis_minority))+
+  geom_bar()
+ggplot(data = data_new, aes(x = income_respondent, fill = citizenship_status))+
+  geom_bar()
+ggplot(data = data_new, aes(x = income_respondent, fill = education))+
+  geom_bar()
+ggplot(data = data_new, aes(x = income_respondent, fill = average_hours_worked))+
+  geom_bar()
+ggplot(data = data_new, aes(x = income_respondent, fill = self_rated_mental_health))+
+  geom_bar()
+ggplot(data = data_new, aes(x = income_respondent, fill = self_rated_health))+
+  geom_bar()
+ggplot(data = data_new, aes(x = income_respondent, fill = language_home))+
+  geom_bar()
+ggplot(data = data_new, aes(x = income_respondent, fill = language_knowledge))+
+  geom_bar()
+ggplot(data = data_new, aes(x = income_respondent, fill = occupation))+
+  geom_bar()
+
+```
+
+### Appendix 2
+
+```{r echo=FALSE}
+pander(summary(model_full))
+```
+
+### Appendix 3
+
+```{r echo=FALSE}
+pander(summary(model_logit_red))
+```
+
+### Appendix 4
+
+```{r echo=FALSE}
+pander(summary(model_logit_int))
+```
+
+### Appendix 5
+
+```{r echo=FALSE}
+an
+```
+### Appendix 6
+
+```{r}
+pred.y = predict(model_logit_int, newdata = test)
+mean((as.numeric(test$income_respondent) - pred.y)^2)
+```
+### Appendix 7
+
+```{r}
+library(pROC)
+pred.prob <- predict(model_logit_int, type = "response")
+## The True Positive Rate ##
+p = fitted(model_logit_int)
+roc_logit = multiclass.roc(train$income_respondent~p, levels = c(1,2,3,4,5,6))
+roc_logit
+```
+### Appendix 8
+
+```{r echo=FALSE}
+logit.mod <- lrm(formula = as.numeric(income_respondent)~ age + 
+                          total_children + place_birth_canada + marital_status
+                        + vis_minority + education + average_hours_worked + 
+                          self_rated_health + occupation, 
+                 data = train, x = TRUE, y = TRUE, model = T)
+cross.calib <- calibrate(logit.mod, method="crossvalidation", B = 10)
+plot(cross.calib, las = 1, xlab = 'Predicted Probability')
+```
+
+
+
+
+
